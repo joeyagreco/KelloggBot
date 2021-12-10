@@ -50,183 +50,176 @@ zip_codes = {
 }
 
 
-i = 1
+gender = ['Male', 'Female', 'Other']
 
 
 
-while(i < 10000):
-    
-    j = random.randint(0, 3)
-    try:
-        driver = webdriver.Chrome(chromedriver_location)
-        driver.get(urls[j])
-        # driver.manage().timeouts().pageLoadTimeout(5, SECONDS)
-        # time.sleep(10)
-        driver.implicitly_wait(10)
-        time.sleep(2)
-        driver.find_element_by_xpath(
-            '//*[@id="content"]/div/div[2]/div/div[1]/div[1]/div/div/button').click()
-        driver.find_element_by_xpath(
-            '//*[@id="applyOption-top-manual"]').click()
-        driver.find_element_by_xpath(
-            '//*[@id="page_content"]/div[2]/div/div/div[2]/div/div/div[2]/a').click()
-    except Exception as e:
-        print("failed 1: " + str(e))
-        pass
-    time.sleep(2)
-    # print(random.choice(list(cities.items()))[0])
-    email = fake.email()
-    password = fake.password()
-    for key in data.keys():
 
-        if key == 'email':
-            info = email
-        if key == 'email-retype':
-            info = email
-        if key == 'pass':
-            info = password
-        if key == 'pass-retype':
-            info = password
-        if key == 'first_name':
-            info = fake.first_name()
-        if key == 'last_name':
-            info = fake.first_name()
-        if key == 'pn':
-            info = fake.phone_number()
 
+class JobApp():
+    def __init__(self):
+        self.driver = webdriver.Chrome(chromedriver_location)
+        self.status = True
+        self.gender = random.choice(gender)
+        self.email = fake.email()
+        self.password = fake.password()
+        
+        
+    def get_urls(self):
+        self.j = random.randint(0, 3)
         try:
-            driver.find_element_by_xpath(data.get(key)).send_keys(info)
-        except:
-            print("failed 2")
-
-
-        # '//*[@id="dataPrivacyId"]'
-        # '//*[@id="dlgButton_20:"]'
-
-        # '//*[@id="fbclc_createAccountButton"]'
-
-    try:
-        time.sleep(random.randint(0, 2))
-        select = Select(driver.find_element_by_id('fbclc_ituCode'))
-        select.select_by_value('US')
-        select = Select(driver.find_element_by_id('fbclc_country'))
-        select.select_by_value('US')
-
-
-
-
-        driver.find_element_by_xpath('//*[@id="dataPrivacyId"]').click()
-        time.sleep(1.5)
-        driver.find_element_by_xpath('//*[@id="dlgButton_20:"]').click()
-        time.sleep(2)
-        driver.find_element_by_xpath(
-            '//*[@id="fbclc_createAccountButton"]').click()
-
-        print(i)
-        time.sleep(1.5)
-        i += 1
-    except:
-        pass
-
-    #time.sleep(4)
-    #print("Close to erroring out")
-    driver.implicitly_wait(10)
-    # //*[@id="48:_attachLabel"] #send pic//*[@id="109:topBar"]
-    driver.find_element_by_xpath('//*[@id="109:topBar"]').click()
-    driver.find_element_by_xpath('//*[@id="260:topBar"]').click()
-
-    if j == 0:
-        city = 'Lancaster'
-    elif j == 1:
-        city = 'Omaha'
-    elif j == 2:
-        city = 'Battle Creek'
-    elif j == 3:
-        city = 'Memphis'
-
-    num = random.randint(0, 4)
-
-    for key in data2.keys():
-
-        if key == 'resume':
-            driver.find_element_by_xpath(
-                '//*[@id="48:_attach"]/div[6]').click()
-
-            info = os.getcwd()+"/src/resume.png"
-        if key == 'addy':
-            info = fake.street_address()
-        if key == 'city':
-            info = city
-            print(city)
-        if key == 'zip':
-            zipp = zip_codes[city]
-            info = zipp[num]
-        if key == 'job':
-            info = fake.job()
-        # if key == 'addy':
-        #     info = fake.first_name()
-        if key == 'salary':
-            info = random.randint(15, 35)
-        # if key == 'country':
-        #     info = fake.phone_number()
-        # if key == 'salary':
-        #     info = fake.phone_number()
-
-        try:
-            driver.find_element_by_xpath(data2.get(key)).send_keys(info)
+            self.driver.get(urls[self.j])
+            self.driver.implicitly_wait(10)
         except Exception as e:
-            print("failed 2: " + str(e))
-    try:
-        select = Select(driver.find_element_by_id('154:_select'))
-        select.select_by_visible_text('Yes')
-        select = Select(driver.find_element_by_id('195:_select'))
-        select.select_by_visible_text('United States')
+            print("failed 1: " + str(e))
+            self.status = False
 
-        select = Select(driver.find_element_by_id('211:_select'))
-        select.select_by_visible_text('Yes')
-        select = Select(driver.find_element_by_id('215:_select'))
-        select.select_by_visible_text('No')
-        select = Select(driver.find_element_by_id('219:_select'))
-        select.select_by_visible_text('No')
-        select = Select(driver.find_element_by_id('223:_select'))
-        select.select_by_visible_text('No')
-        select = Select(driver.find_element_by_id('227:_select'))
-        select.select_by_visible_text('No')
-        select = Select(driver.find_element_by_id('231:_select'))
-        select.select_by_visible_text('Yes')
-        select = Select(driver.find_element_by_id('223:_select'))
-        select.select_by_visible_text('No')
+    def click_apply(self):
+        self.driver.find_element_by_xpath(
+            '//*[@id="content"]/div/div[2]/div/div[1]/div[1]/div/div/button').click()
+        self.driver.find_element_by_xpath(
+            '//*[@id="applyOption-top-manual"]').click()
+        self.driver.find_element_by_xpath(
+            '//*[@id="page_content"]/div[2]/div/div/div[2]/div/div/div[2]/a').click()
 
-        time.sleep(1)
-        gender = ['Male', 'Female', 'Other']
-        select = Select(driver.find_element_by_id('235:_select'))
-        g = random.choice(gender)
-        print(g)
-        select.select_by_visible_text(g)
+    def create_account(self):
+        for key in data.keys():
+            if key == 'email':
+                info = self.email
+            if key == 'email-retype':
+                info = self.email
+            if key == 'pass':
+                info = self.password
+            if key == 'pass-retype':
+                info = self.password
+            if key == 'first_name':
+                info = fake.first_name()
+            if key == 'last_name':
+                info = fake.first_name()
+            if key == 'pn':
+                info = fake.phone_number()
 
-        # label[text()='Patient's Name']
-        # //*[@id="130:_radiolabel"]
-        # //*[@id="130:_anchor"]
-        # driver.find_element_by_class_name("")
+            try:
+                self.driver.find_element_by_xpath(data.get(key)).send_keys(info)
+            except:
+                print("Failed to enter account data")
+                self.status = False
 
-        driver.find_element_by_xpath('//label[text()="350 LBS"]').click()
-        driver.find_element_by_xpath('//label[text()="800 LBS"]').click()
-        els = driver.find_elements_by_xpath('//label[text()="Yes"]')
-        for el in els:
-            el.click()
-        # driver.find_element_by_xpath('//label[text()="Yes"]').click()
-        # driver.find_element_by_xpath('//label[text()="Yes"]').click()
 
-        # driver.find_element_by_xpath('//*[@id="121:_radio"]').click()
-        # driver.find_element_by_xpath('//*[@id="128:_radio"]').click()
-        # driver.find_element_by_xpath('//*[@id="138:_radio"]').click()
-        # driver.find_element_by_xpath('//*[@id="143:_radio"]').click()
+        try:
+            time.sleep(random.randint(0, 2))
+            select = Select(self.driver.find_element_by_id('fbclc_ituCode'))
+            select.select_by_value('US')
+            select = Select(self.driver.find_element_by_id('fbclc_country'))
+            select.select_by_value('US')
 
-        time.sleep(5)
-        driver.find_element_by_xpath('//*[@id="261:_submitBtn"]').click()
-        # time.sleep(10)
-    except:
-        pass
 
-    driver.close()
-    time.sleep(5)
+
+
+            self.driver.find_element_by_xpath('//*[@id="dataPrivacyId"]').click()
+            time.sleep(1.5)
+            self.driver.find_element_by_xpath('//*[@id="dlgButton_20:"]').click()
+            time.sleep(2)
+            self.driver.find_element_by_xpath(
+                '//*[@id="fbclc_createAccountButton"]').click()
+
+            time.sleep(1.5)
+        except:
+            print("Failed to create account")
+            self.status = False
+
+    
+    def fill_application(self):
+        self.driver.implicitly_wait(10)
+        self.driver.find_element_by_xpath('//*[@id="109:topBar"]').click()
+        self.driver.find_element_by_xpath('//*[@id="260:topBar"]').click()
+
+        if self.j == 0:
+            city = 'Lancaster'
+        elif self.j == 1:
+            city = 'Omaha'
+        elif self.j == 2:
+            city = 'Battle Creek'
+        elif self.j == 3:
+            city = 'Memphis'
+
+        num = random.randint(0, 5)
+
+        for key in data2.keys():
+
+            if key == 'resume':
+                self.driver.find_element_by_xpath(
+                    '//*[@id="48:_attach"]/div[6]').click()
+
+                info = os.getcwd()+"/src/resume.png"
+            if key == 'addy':
+                info = fake.street_address()
+            if key == 'city':
+                info = city
+                print(city)
+            if key == 'zip':
+                zipp = zip_codes[city]
+                info = zipp[num]
+            if key == 'job':
+                info = fake.job()
+            if key == 'salary':
+                info = random.randint(15, 35)
+
+            try:
+                self.driver.find_element_by_xpath(data2.get(key)).send_keys(info)
+            except Exception as e:
+                print("failed 2: " + str(e))
+                self.status = False
+
+        try:
+            select = Select(self.driver.find_element_by_id('154:_select'))
+            select.select_by_visible_text('Yes')
+            select = Select(self.driver.find_element_by_id('195:_select'))
+            select.select_by_visible_text('United States')
+
+            select = Select(self.driver.find_element_by_id('211:_select'))
+            select.select_by_visible_text('Yes')
+            select = Select(self.driver.find_element_by_id('215:_select'))
+            select.select_by_visible_text('No')
+            select = Select(self.driver.find_element_by_id('219:_select'))
+            select.select_by_visible_text('No')
+            select = Select(self.driver.find_element_by_id('223:_select'))
+            select.select_by_visible_text('No')
+            select = Select(self.driver.find_element_by_id('227:_select'))
+            select.select_by_visible_text('No')
+            select = Select(self.driver.find_element_by_id('231:_select'))
+            select.select_by_visible_text('Yes')
+            select = Select(self.driver.find_element_by_id('223:_select'))
+            select.select_by_visible_text('No')
+
+            time.sleep(1)
+            
+            select = Select(self.driver.find_element_by_id('235:_select'))
+            
+            print(self.gender)
+            select.select_by_visible_text(self.gender)
+
+            self.driver.find_element_by_xpath('//label[text()="350 LBS"]').click()
+            self.driver.find_element_by_xpath('//label[text()="800 LBS"]').click()
+            els = self.driver.find_elements_by_xpath('//label[text()="Yes"]')
+            for el in els:
+                el.click()
+
+            time.sleep(5)
+            self.driver.find_element_by_xpath('//*[@id="261:_submitBtn"]').click()
+        except:
+            pass
+
+    def close_window(self):
+        self.driver.close()
+
+    def apply(self):
+        self.get_urls()
+        if self.status == True:
+            self.click_apply()
+        if self.status == True:
+            self.create_account()
+        if self.status == True:
+            self.fill_application()
+
+        self.close_window()
