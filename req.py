@@ -1,9 +1,11 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import Select
 import requests
 import random
 import time
 import os
+import tempfile, shutil
 from faker import Faker
 fake = Faker()
 chromedriver_location = "./chromedriver"
@@ -58,7 +60,10 @@ gender = ['Male', 'Female', 'Other']
 
 class JobApp():
     def __init__(self):
-        self.driver = webdriver.Chrome(chromedriver_location)
+        self.opt = Options()
+        self.opt.add_experimental_option('excludeSwitches', ['enable-logging'])
+        self.driver = webdriver.Chrome(chromedriver_location, options=self.opt)
+        self.driver.minimize_window()
         self.status = True
         self.gender = random.choice(gender)
         self.email = fake.email()
@@ -94,8 +99,10 @@ class JobApp():
                 info = self.password
             if key == 'first_name':
                 info = fake.first_name()
+                self.first_name = info
             if key == 'last_name':
-                info = fake.first_name()
+                info = fake.last_name()
+                self.last_name = info
             if key == 'pn':
                 info = fake.phone_number()
 
@@ -151,12 +158,12 @@ class JobApp():
                 self.driver.find_element_by_xpath(
                     '//*[@id="48:_attach"]/div[6]').click()
 
-                info = os.getcwd()+"/src/resume.png"
+                info = self.rename_resume(os.getcwd()+"/src/resume.png")
             if key == 'addy':
                 info = fake.street_address()
             if key == 'city':
                 info = city
-                print(city)
+                self.city = city
             if key == 'zip':
                 zipp = zip_codes[city]
                 info = zipp[num]
@@ -196,7 +203,6 @@ class JobApp():
             
             select = Select(self.driver.find_element_by_id('235:_select'))
             
-            print(self.gender)
             select.select_by_visible_text(self.gender)
 
             self.driver.find_element_by_xpath('//label[text()="350 LBS"]').click()
@@ -210,7 +216,14 @@ class JobApp():
         except:
             pass
 
+    def rename_resume(self, path):
+        temp_dir = tempfile.gettempdir()
+        self.temp_path = os.path.join(temp_dir, 'resume_' + self.first_name + '_' + self.last_name + '.png')
+        shutil.copy2(path, self.temp_path)
+        return self.temp_path
+
     def close_window(self):
+        os.remove(self.temp_path)
         self.driver.close()
 
     def apply(self):
@@ -223,3 +236,4 @@ class JobApp():
             self.fill_application()
 
         self.close_window()
+        return self.city, self.gender
