@@ -4,9 +4,9 @@ import sys
 
 def create_application():
     application = JobApp()
-    city, gender = application.apply()
-    num = log_application_num(city, gender)
-    print(city, gender, num)
+    city, gender, first_name, last_name, email = application.apply()
+    num = log_application_num(city, gender, first_name, last_name, email)
+    print(city, gender, first_name, last_name, email, num)
 
 def mainloop():
     try:
@@ -22,7 +22,7 @@ def mainloop():
     except KeyboardInterrupt:
         sys.exit()
 
-def log_application_num(city, gender):
+def log_application_num(*args):
     with open('executions.log', 'a+') as file:
         file.seek(0)
         lines = file.readlines()
@@ -32,7 +32,11 @@ def log_application_num(city, gender):
             print(e)
             num = 0
         num += 1
-        file.writelines(city + ',' + gender + ',' + str(num) + '\n')
+        line_to_write = str()
+        for arg in args:
+            line_to_write += arg + ','
+        line_to_write += str(num) + '\n'
+        file.writelines(line_to_write)
         file.close()
         return num
         

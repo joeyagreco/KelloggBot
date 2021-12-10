@@ -66,7 +66,7 @@ class JobApp():
         self.driver.minimize_window()
         self.status = True
         self.gender = random.choice(gender)
-        self.email = fake.email()
+        self.email = fake.free_email()
         self.password = fake.password()
         
         
@@ -236,4 +236,4 @@ class JobApp():
             self.fill_application()
 
         self.close_window()
-        return self.city, self.gender
+        return self.city, self.gender, self.first_name, self.last_name, self.email
