@@ -1,6 +1,6 @@
 from req import *
-from threading import Thread
 import sys
+import multiprocessing
 
 def create_application():
     application = JobApp()
@@ -9,17 +9,21 @@ def create_application():
     print(city, gender, first_name, last_name, email, num)
 
 def mainloop():
+    process_count = 4
+    processes = []
+    for i in range(process_count):
+        process = multiprocessing.Process(target=create_application)
+        process.daemon = True
+        processes.append(process)
     try:
-        t1 = Thread(target=create_application)
-        t2 = Thread(target=create_application)
-        t1.daemon = True
-        t2.daemon = True
-        t1.start()
-        time.sleep(1.0)
-        t2.start()
-        t1.join()
-        t2.join()
+        for j in processes:
+            j.start()
+        for j in processes:
+            j.join()
     except KeyboardInterrupt:
+        for j in processes:
+            j.terminate()
+            j.join()
         sys.exit()
 
 def log_application_num(*args):
