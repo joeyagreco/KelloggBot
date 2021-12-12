@@ -3,6 +3,7 @@ import os
 import random
 import sys
 import time
+import tempfile
 
 import requests
 import speech_recognition as sr
@@ -16,7 +17,6 @@ from constants.classNames import *
 from constants.common import *
 from constants.elementIds import *
 from constants.email import *
-from constants.filenames import *
 from constants.location import *
 from constants.tagNames import *
 from constants.urls import *
@@ -24,7 +24,6 @@ from constants.xPaths import *
 
 fake = Faker()
 chromedriver_location = CHROMEDRIVER_PATH
-filename = CAPTCHA_MP3_FILENAME
 speech_recognition_recognizer = sr.Recognizer()
 # Change default in module for print to flush
 # https://stackoverflow.com/questions/230751/how-can-i-flush-the-output-of-the-print-function-unbuffer-python-output#:~:text=Changing%20the%20default%20in%20one%20module%20to%20flush%3DTrue
@@ -105,8 +104,11 @@ def generate_account(driver):
             while True:
                 href = driver.find_element_by_id(AUDIO_SOURCE).get_attribute('src')
                 response = requests.get(href, stream=True)
-                saveFile(response, filename)
-                response = audioToText(filename)
+                mp3_file = tempfile.NamedTemporaryFile(mode='wb', delete=False)
+                [mp3_file.write(data) for data in response.iter_content()]
+                mp3_file.close()
+                response = audioToText(mp3_file.name)
+                os.unlink(mp3_file.name)
                 print(f'TRYING "{response}" TO SOLVE RECAPTCHA...')
                 driver.switch_to.default_content()
                 iframe = driver.find_elements_by_tag_name(IFRAME)[audioBtnIndex]
@@ -220,23 +222,20 @@ def random_email(name=None):
 def audioToText(mp3Path):
     # convert wav to mp3
     sound = AudioSegment.from_mp3(mp3Path)
-    sound.export(CAPTCHA_WAV_FILENAME, format="wav")
+    wav_file = tempfile.TemporaryFile()
+    sound.export(wav_file, format="wav")
 
-    with sr.AudioFile(CAPTCHA_WAV_FILENAME) as source:
+    with sr.AudioFile(wav_file) as source:
         audio_text = speech_recognition_recognizer.listen(source)
         try:
             text = speech_recognition_recognizer.recognize_google(audio_text)
             print('Converting audio transcripts into text ...')
+            wav_file.close()
             return text
         except Exception as e:
+            wav_file.close()
             print(e)
             print('Sorry.. run again...')
-
-
-def saveFile(content, filename):
-    with open(filename, "wb") as handle:
-        for data in content.iter_content():
-            handle.write(data)
 
 
 def main():
